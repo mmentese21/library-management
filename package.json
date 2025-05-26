@@ -1,0 +1,22 @@
+{
+  "name": "library-management-system",
+  "version": "2.0.0",
+  "description": "A comprehensive library management system with separate staff and user interfaces",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "setup": "npm install && node setup-db.js",
+    "nginx": "sudo nginx -s reload",
+    "stop-nginx": "sudo nginx -s stop"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

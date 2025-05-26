@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Staff Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="staff.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👨‍💼 Staff Dashboard</h1>
+            <div class="user-info">
+                <span class="user-badge">🔧 Staff Portal</span>
+                <button class="btn btn-danger" onclick="logout()">🚪 Logout</button>
+            </div>
+            <div class="nav-tabs">
+                <button class="tab-button active" onclick="showTab('dashboard')">📊 Dashboard</button>
+                <button class="tab-button" onclick="showTab('books')">📚 Book Management</button>
+                <button class="tab-button" onclick="showTab('members')">👥 Member Management</button>
+                <button class="tab-button" onclick="showTab('transactions')">📋 Transactions</button>
+                <button class="tab-button" onclick="showTab('analytics')">📈 Analytics</button>
+                <button class="tab-button" onclick="showTab('staff')">👨‍💼 Staff Management</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <h2>📊 Library Dashboard</h2>
+            <div class="stats-grid" id="statsGrid">
+                <!-- Stats will be loaded here -->
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>🔥 Recent Activity</h3>
+                    <div id="recentActivity">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading recent activity...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>⚠️ Overdue Books</h3>
+                    <div id="overdueBooks">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading overdue books...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Books Tab -->
+        <div id="books" class="tab-content">
+            <h2>📚 Book Management</h2>
+            
+            <div class="controls-section">
+                <input type="text" class="search-input" id="bookSearch" placeholder="🔍 Search books by title, author, or ISBN...">
+                <button class="btn btn-primary" onclick="showModal('addBookModal')">➕ Add Book</button>
+                <button class="btn btn-success" onclick="loadBooks()">🔄 Refresh</button>
+                <button class="btn btn-warning" onclick="showBulkOperations()">📦 Bulk Operations</button>
+            </div>
+
+            <div id="booksTable">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading books...
+                </div>
+            </div>
+        </div>
+
+        <!-- Members Tab -->
+        <div id="members" class="tab-content">
+            <h2>👥 Member Management</h2>
+            
+            <div class="controls-section">
+                <input type="text" class="search-input" id="memberSearch" placeholder="🔍 Search members by name or email...">
+                <button class="btn btn-primary" onclick="showModal('addMemberModal')">➕ Add Member</button>
+                <button class="btn btn-success" onclick="loadMembers()">🔄 Refresh</button>
+                <button class="btn btn-warning" onclick="exportMembers()">📄 Export List</button>
+            </div>
+
+            <div id="membersTable">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading members...
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions Tab -->
+        <div id="transactions" class="tab-content">
+            <h2>📋 Transaction Management</h2>
+            
+            <div class="controls-section">
+                <button class="btn btn-primary" onclick="showModal('borrowBookModal')">📚 Issue Book</button>
+                <button class="btn btn-primary" onclick="showModal('returnBookModal')">↩️ Return Book</button>
+                <button class="btn btn-warning" onclick="processOverdueFines()">💰 Process Fines</button>
+                <button class="btn btn-success" onclick="loadTransactions()">🔄 Refresh</button>
+            </div>
+
+            <div id="transactionsTable">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading transactions...
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <h2>📈 Analytics & Reports</h2>
+            
+            <div class="controls-section">
+                <button class="btn btn-primary" onclick="generateReport('daily')">📊 Daily Report</button>
+                <button class="btn btn-primary" onclick="generateReport('monthly')">📈 Monthly Report</button>
+                <button class="btn btn-warning" onclick="generateReport('overdue')">⚠️ Overdue Report</button>
+                <button class="btn btn-success" onclick="loadAnalytics()">🔄 Refresh</button>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>📊 Category Statistics</h3>
+                    <div id="categoryStats">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading statistics...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>🏆 Active Borrowers</h3>
+                    <div id="activeBorrowers">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading borrowers...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>📚 Never Borrowed Books</h3>
+                    <div id="neverBorrowedBooks">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading data...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>📅 Monthly Trends</h3>
+                    <div id="monthlyTrends">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading trends...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Tab -->
+        <div id="staff" class="tab-content">
+            <h2>👨‍💼 Staff Management</h2>
+            
+            <div class="controls-section">
+                <input type="text" class="search-input" id="staffSearch" placeholder="🔍 Search staff by name or position...">
+                <button class="btn btn-primary" onclick="showModal('addStaffModal')">➕ Add Staff</button>
+                <button class="btn btn-success" onclick="loadStaff()">🔄 Refresh</button>
+            </div>
+
+            <div id="staffTable">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading staff...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Member Modal -->
+    <div id="addMemberModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>➕ Add New Member</h2>
+            <form id="addMemberForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="memberFirstName">First Name *</label>
+                        <input type="text" id="memberFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="memberLastName">Last Name *</label>
+                        <input type="text" id="memberLastName" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="memberEmail">Email *</label>
+                        <input type="email" id="memberEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="memberPhone">Phone</label>
+                        <input type="tel" id="memberPhone">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="memberAddress">Address</label>
+                    <textarea id="memberAddress" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="memberType">Membership Type *</label>
+                    <select id="memberType" required>
+                        <option value="">Select Type</option>
+                        <option value="Student">Student</option>
+                        <option value="Faculty">Faculty</option>
+                        <option value="Public">Public</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">✅ Add Member</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addMemberModal')">❌ Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Book Modal -->
+    <div id="addBookModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>➕ Add New Book</h2>
+            <form id="addBookForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bookTitle">Title *</label>
+                        <input type="text" id="bookTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookISBN">ISBN *</label>
+                        <input type="text" id="bookISBN" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bookPublisher">Publisher</label>
+                        <input type="text" id="bookPublisher">
+                    </div>
+                    <div class="form-group">
+                        <label for="bookYear">Publication Year</label>
+                        <input type="number" id="bookYear" min="1000" max="2025">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bookPages">Pages</label>
+                        <input type="number" id="bookPages" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="bookCopies">Total Copies *</label>
+                        <input type="number" id="bookCopies" min="1" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="bookCategory">Category *</label>
+                    <select id="bookCategory" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">✅ Add Book</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addBookModal')">❌ Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Issue Book Modal -->
+    <div id="borrowBookModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>📚 Issue Book</h2>
+            <form id="borrowBookForm">
+                <div class="form-group">
+                    <label for="borrowMember">Member *</label>
+                    <select id="borrowMember" required>
+                        <option value="">Select Member</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="borrowBook">Book *</label>
+                    <select id="borrowBook" required>
+                        <option value="">Select Book</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="borrowDueDate">Due Date *</label>
+                    <input type="date" id="borrowDueDate" required>
+                </div>
+                <button type="submit" class="btn btn-primary">✅ Issue Book</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('borrowBookModal')">❌ Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Return Book Modal -->
+    <div id="returnBookModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>↩️ Return Book</h2>
+            <form id="returnBookForm">
+                <div class="form-group">
+                    <label for="returnTransaction">Active Transaction *</label>
+                    <select id="returnTransaction" required>
+                        <option value="">Select Transaction</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="returnFine">Fine Amount</label>
+                    <input type="number" id="returnFine" step="0.01" min="0" value="0">
+                </div>
+                <button type="submit" class="btn btn-primary">✅ Return Book</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('returnBookModal')">❌ Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Staff Modal -->
+    <div id="addStaffModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>➕ Add New Staff</h2>
+            <form id="addStaffForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="staffFirstName">First Name *</label>
+                        <input type="text" id="staffFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="staffLastName">Last Name *</label>
+                        <input type="text" id="staffLastName" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="staffEmail">Email *</label>
+                        <input type="email" id="staffEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="staffPhone">Phone</label>
+                        <input type="tel" id="staffPhone">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="staffPosition">Position *</label>
+                        <select id="staffPosition" required>
+                            <option value="">Select Position</option>
+                            <option value="Head Librarian">Head Librarian</option>
+                            <option value="Assistant Librarian">Assistant Librarian</option>
+                            <option value="Library Clerk">Library Clerk</option>
+                            <option value="Library Assistant">Library Assistant</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="staffSalary">Salary *</label>
+                        <input type="number" id="staffSalary" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">✅ Add Staff</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addStaffModal')">❌ Cancel</button>
+            </form>
+        </div>
+    </div>
+
+   
+</body>
+</html>
