@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Catalog - User Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <source src="user.js"></source>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Library Catalog</h1>
+            <div class="user-info">
+                <span class="user-badge">👤 Member Portal</span>
+                <button class="btn btn-primary" onclick="switchToStaff()">👨‍💼 Staff Login</button>
+            </div>
+            <div class="nav-tabs">
+                <button class="tab-button active" onclick="showTab('browse')">📖 Browse Books</button>
+                <button class="tab-button" onclick="showTab('search')">🔍 Advanced Search</button>
+                <button class="tab-button" onclick="showTab('account')">👤 My Account</button>
+                <button class="tab-button" onclick="showTab('help')">❓ Help</button>
+            </div>
+        </div>
+
+        <!-- Browse Books Tab -->
+        <div id="browse" class="tab-content active">
+            <div class="welcome-section">
+                <h2 class="welcome-title">Welcome to Our Library</h2>
+                <p class="welcome-subtitle">Discover thousands of books across various categories</p>
+            </div>
+
+            <div class="stats-grid" id="libraryStats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalBooksCount">...</div>
+                    <div class="stat-label">Total Books</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="availableBooksCount">...</div>
+                    <div class="stat-label">Available Now</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="categoriesCount">...</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="authorsCount">...</div>
+                    <div class="stat-label">Authors</div>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" class="search-input" id="quickSearch" placeholder="🔍 Search books by title, author, or ISBN...">
+                <button class="btn btn-primary" onclick="performQuickSearch()">Search</button>
+                <button class="btn btn-success" onclick="loadAllBooks()">Show All Books</button>
+            </div>
+
+            <div class="filters">
+                <select class="filter-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                </select>
+                <select class="filter-select" id="availabilityFilter">
+                    <option value="">All Books</option>
+                    <option value="available">Available Only</option>
+                    <option value="unavailable">Unavailable</option>
+                </select>
+                <select class="filter-select" id="sortBy">
+                    <option value="title">Sort by Title</option>
+                    <option value="author">Sort by Author</option>
+                    <option value="year">Sort by Year</option>
+                    <option value="category">Sort by Category</option>
+                </select>
+            </div>
+
+            <div id="booksGrid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading available books...
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Search Tab -->
+        <div id="search" class="tab-content">
+            <h2>🔍 Advanced Search</h2>
+            
+            <div class="account-card">
+                <h3>Search Criteria</h3>
+                <div class="account-info">
+                    <div class="info-item">
+                        <label class="info-label" for="searchTitle">Book Title</label>
+                        <input type="text" id="searchTitle" placeholder="Enter book title">
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label" for="searchAuthor">Author Name</label>
+                        <input type="text" id="searchAuthor" placeholder="Enter author name">
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label" for="searchISBN">ISBN</label>
+                        <input type="text" id="searchISBN" placeholder="Enter ISBN">
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label" for="searchCategory">Category</label>
+                        <select id="searchCategory">
+                            <option value="">Select Category</option>
+                        </select>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label" for="searchYear">Publication Year</label>
+                        <input type="number" id="searchYear" placeholder="Enter year" min="1000" max="2025">
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label" for="searchPublisher">Publisher</label>
+                        <input type="text" id="searchPublisher" placeholder="Enter publisher">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="performAdvancedSearch()">🔍 Advanced Search</button>
+                <button class="btn btn-success" onclick="clearSearch()">🗑️ Clear All</button>
+            </div>
+
+            <div id="searchResults">
+                <div class="no-results">
+                    Enter search criteria above to find specific books
+                </div>
+            </div>
+        </div>
+
+        <!-- My Account Tab -->
+        <div id="account" class="tab-content">
+            <h2>👤 My Library Account</h2>
+            
+            <!-- Member ID Input -->
+            <div class="account-card">
+                <h3>Account Access</h3>
+                <div class="account-info">
+                    <div class="info-item">
+                        <label class="info-label" for="memberIdInput">Enter Your Member ID</label>
+                        <input type="number" id="memberIdInput" placeholder="Enter your member ID (e.g., 1, 2, 3...)">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="loadMemberAccount()">🔍 View My Account</button>
+                <p style="margin-top: 15px; color: #636e72; font-style: italic;">
+                    📝 Demo: Try member IDs 1, 2, 3, 4, or 5 to see different member accounts
+                </p>
+            </div>
+
+            <!-- Account Information -->
+            <div id="accountInfo" style="display: none;">
+                <div class="account-card">
+                    <h3>Account Information</h3>
+                    <div class="account-info" id="memberDetails">
+                        <!-- Member details will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="account-card">
+                    <h3>📊 My Library Statistics</h3>
+                    <div class="quick-stats" id="memberStats">
+                        <!-- Stats will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Current Borrowings -->
+                <div class="account-card">
+                    <h3>📚 Current Borrowings</h3>
+                    <div id="currentBorrowings">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading your current borrowings...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Borrowing History -->
+                <div class="account-card">
+                    <h3>📋 Borrowing History</h3>
+                    <div id="borrowingHistory">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading your borrowing history...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Tab -->
+        <div id="help" class="tab-content">
+            <h2>❓ Help & Information</h2>
+            
+            <div class="account-card">
+                <h3>📖 How to Use the Library System</h3>
+                <div style="line-height: 1.8; color: #4a5568;">
+                    <h4 style="margin: 20px 0 10px 0; color: #2d3436;">🔍 Browsing Books</h4>
+                    <p>• Use the "Browse Books" tab to see all available books</p>
+                    <p>• Search for books using the quick search bar</p>
+                    <p>• Filter books by category or availability</p>
+                    <p>• Click on any book card to see more details</p>
+
+                    <h4 style="margin: 20px 0 10px 0; color: #2d3436;">🔎 Advanced Search</h4>
+                    <p>• Use specific criteria to find exactly what you're looking for</p>
+                    <p>• Search by title, author, ISBN, category, year, or publisher</p>
+                    <p>• Combine multiple criteria for precise results</p>
+
+                    <h4 style="margin: 20px 0 10px 0; color: #2d3436;">👤 My Account</h4>
+                    <p>• Enter your member ID to access your account</p>
+                    <p>• View your current borrowings and due dates</p>
+                    <p>• Check your complete borrowing history</p>
+                    <p>• Monitor any outstanding fines</p>
+
+                    <h4 style="margin: 20px 0 10px 0; color: #2d3436;">📚 Book Availability</h4>
+                    <p>• <span class="availability-badge available">Available</span> - Book can be borrowed</p>
+                    <p>• <span class="availability-badge limited">Limited</span> - Few copies remaining</p>
+                    <p>• <span class="availability-badge unavailable">Unavailable</span> - All copies are currently borrowed</p>
+                </div>
+            </div>
+
+            <div class="account-card">
+                <h3>📞 Contact Information</h3>
+                <div class="account-info">
+                    <div class="info-item">
+                        <div class="info-label">📍 Address</div>
+                        <div class="info-value">University Library, Main Campus</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">📞 Phone</div>
+                        <div class="info-value">+1 (555) 123-4567</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">📧 Email</div>
+                        <div class="info-value">library@university.edu</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">🕒 Hours</div>
+                        <div class="info-value">Mon-Fri: 8AM-10PM<br>Weekends: 10AM-6PM</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="account-card">
+                <h3>⚠️ Important Policies</h3>
+                <div style="line-height: 1.8; color: #4a5568;">
+                    <p>• <strong>Loan Period:</strong> 14 days for regular members, 30 days for faculty</p>
+                    <p>• <strong>Renewals:</strong> Books can be renewed once if no other member has reserved them</p>
+                    <p>• <strong>Fines:</strong> $0.50 per day for overdue books</p>
+                    <p>• <strong>Reservations:</strong> Books can be reserved when unavailable</p>
+                    <p>• <strong>Lost Books:</strong> Replacement cost plus $10 processing fee</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>
