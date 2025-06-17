@@ -446,6 +446,22 @@ app.get('/api/books/search', async (req, res) => {
     }
 });
 
+//return
+app.put('/api/transactions/:id/return', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { Fine } = req.body;
+        // Update transaction status and set return date and fine
+        await pool.execute(
+            'UPDATE Transactions SET Status = "Returned", ReturnDate = CURDATE(), Fine = ? WHERE TransactionID = ?',
+            [Fine || 0, id]
+        );
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Get member transaction history
 app.get('/api/members/:id/transactions', async (req, res) => {
     try {
@@ -467,6 +483,20 @@ app.get('/api/members/:id/transactions', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+app.get('/api/books/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await pool.execute('SELECT * FROM Books WHERE BookID = ?', [id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 // Get book transaction history
 app.get('/api/books/:id/transactions', async (req, res) => {
