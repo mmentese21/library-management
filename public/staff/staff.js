@@ -740,7 +740,16 @@
 
         function deleteBook(bookId) {
             if (confirm('Are you sure you want to delete this book?')) {
-                showAlert('Delete functionality will be implemented', 'success');
+                apiCall(`/books/${bookId}`, {
+                    method: 'DELETE'
+                }).then(result => {
+                    if (result && result.success) {
+                        showAlert('Book deleted successfully!', 'success');
+                        loadBooks();
+                    } else {
+                        showAlert('Failed to delete book.', 'error');
+                    }
+                });
             }
         }
 
