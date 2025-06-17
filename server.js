@@ -484,6 +484,20 @@ app.get('/api/members/:id/transactions', async (req, res) => {
     }
 });
 
+app.get('/api/books/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await pool.execute('SELECT * FROM Books WHERE BookID = ?', [id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 // Get book transaction history
 app.get('/api/books/:id/transactions', async (req, res) => {
     try {

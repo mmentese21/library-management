@@ -36,6 +36,8 @@
             document.getElementById('borrowBookForm').addEventListener('submit', handleBorrowBook);
             document.getElementById('returnBookForm').addEventListener('submit', handleReturnBook);
             document.getElementById('addStaffForm').addEventListener('submit', handleAddStaff);
+            document.getElementById('editBookForm').addEventListener('submit', handleEditBook);
+            document.getElementById('editMemberForm').addEventListener('submit', handleEditMember);
 
             // Modal close events
             document.querySelectorAll('.close').forEach(closeBtn => {
@@ -248,7 +250,25 @@
             
             document.getElementById('booksTable').innerHTML = tableHTML;
         }
+        
+        function editBook(bookId) {
+    const book = currentData.books.find(b => b.BookID === bookId);
+    if (!book) return;
 
+    document.getElementById('editBookID').value = book.BookID;
+    document.getElementById('editBookTitle').value = book.Title;
+    document.getElementById('editBookISBN').value = book.ISBN;
+    document.getElementById('editBookPublisher').value = book.Publisher || '';
+    document.getElementById('editBookYear').value = book.PublicationYear || '';
+    document.getElementById('editBookPages').value = book.Pages || '';
+    document.getElementById('editBookCopies').value = book.TotalCopies;
+    document.getElementById('editBookAvailableCopies').value = book.AvailableCopies;
+    document.getElementById('editBookCategory').value = book.CategoryID || '';
+
+    showModal('editBookModal');
+}
+
+        
         function filterBooks() {
             const searchTerm = document.getElementById('bookSearch').value.toLowerCase();
             const filteredBooks = currentData.books.filter(book => 
@@ -520,7 +540,34 @@
                 loadMembers();
             }
         }
+        async function handleEditBook(event) {
+            event.preventDefault();
+            
+            const bookData = {
+                Title: document.getElementById('editBookTitle').value,
+                ISBN: document.getElementById('editBookISBN').value,
+                Publisher: document.getElementById('editBookPublisher').value,
+                PublicationYear: document.getElementById('editBookYear').value,
+                Pages: document.getElementById('editBookPages').value,
+                TotalCopies: document.getElementById('editBookCopies').value,
+                AvailableCopies: document.getElementById('editBookAvailableCopies').value,
+                CategoryID: document.getElementById('editBookCategory').value
+            };
 
+            const bookId = document.getElementById('editBookID').value;
+
+            const result = await apiCall(`/books/${bookId}`, {
+                method: 'PUT',
+                body: JSON.stringify(bookData)
+            });
+
+            if (result && result.success) {
+                showAlert('Book updated successfully!', 'success');
+                closeModal('editBookModal');
+                document.getElementById('editBookForm').reset();
+                loadBooks();
+            }
+        }
         async function handleAddBook(event) {
             event.preventDefault();
             
@@ -784,9 +831,6 @@
             showAlert('Exporting member list...', 'success');
         }
 
-        function editBook(bookId) {
-            showAlert('Edit functionality will be implemented', 'success');
-        }
 
         function deleteBook(bookId) {
             if (confirm('Are you sure you want to delete this book?')) {
