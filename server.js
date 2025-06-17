@@ -446,6 +446,22 @@ app.get('/api/books/search', async (req, res) => {
     }
 });
 
+//return
+app.put('/api/transactions/:id/return', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { Fine } = req.body;
+        // Update transaction status and set return date and fine
+        await pool.execute(
+            'UPDATE Transactions SET Status = "Returned", ReturnDate = CURDATE(), Fine = ? WHERE TransactionID = ?',
+            [Fine || 0, id]
+        );
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Get member transaction history
 app.get('/api/members/:id/transactions', async (req, res) => {
     try {

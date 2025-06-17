@@ -580,7 +580,7 @@
 
             const result = await apiCall(`/transactions/${transactionId}/return`, {
                 method: 'PUT',
-                body: JSON.stringify({ Fine: fine })
+                body: JSON.stringify({ fine: fine })
             });
 
             if (result && result.success) {
@@ -694,6 +694,7 @@
             showAlert(`Generating ${type} report...`, 'success');
             // Implementation for report generation
 
+
         }
 
         function processOverdueFines() {
@@ -714,16 +715,65 @@
         function viewBookHistory(bookId) {
             showAlert('Viewing book history...', 'success');
             // Implementation for book history
+            // This could involve fetching transaction history for the book
+            apiCall(`/books/${bookId}/history`).then(history => {
+                if (history) {
+                    const historyHTML = history.map(item => `
+                        <div style="padding: 10px; border-bottom: 1px solid #e2e8f0; margin-bottom: 10px;">
+                            <strong>${item.MemberName}</strong> borrowed <em>"${item.BookTitle}"</em>
+                            <br>
+                            <small style="color: #666;">📅 Borrowed on ${new Date(item.BorrowDate).toLocaleDateString()} | Due on ${new Date(item.DueDate).toLocaleDateString()}</small>
+                        </div>
+                    `).join('');
+                    document.getElementById('bookHistory').innerHTML = historyHTML || '<p>No history available for this book.</p>';
+                }
+            });
         }
 
         function viewMemberHistory(memberId) {
-            showAlert('Viewing member history...', 'success');
-            // Implementation for member history
+    showAlert('Viewing member history...', 'success');
+    // Use the correct endpoint
+    apiCall(`/members/${memberId}/transactions`).then(history => {
+        if (history) {
+            const historyHTML = history.map(item => `
+                <div style="padding: 10px; border-bottom: 1px solid #e2e8f0; margin-bottom: 10px;">
+                    <strong>${item.BookTitle}</strong> borrowed by <strong>${item.MemberName}</strong>
+                    <br>
+                    <small style="color: #666;">📅 Borrowed on ${new Date(item.BorrowDate).toLocaleDateString()} | Due on ${new Date(item.DueDate).toLocaleDateString()}</small>
+                </div>
+            `).join('');
+            document.getElementById('memberHistory').innerHTML = historyHTML || '<p>No history available for this member.</p>';
         }
+    });
+}
 
         function viewTransactionDetails(transactionId) {
             showAlert('Viewing transaction details...', 'success');
             // Implementation for transaction details
+            apiCall(`/transactions/${transactionId}`).then(transaction => {
+                if (transaction) {
+                    const detailsHTML = `
+                        <div style="padding: 10px; border-bottom: 1px solid #e2e8f0; margin-bottom: 10px;">
+                            <strong>Transaction ID:</strong> ${transaction.TransactionID}
+                            <br>
+                            <strong>Member:</strong> ${transaction.MemberName}
+                            <br>
+                            <strong>Book:</strong> ${transaction.BookTitle}
+                            <br>
+                            <strong>Staff:</strong> ${transaction.StaffName}
+                            <br>
+                            <strong>Status:</strong> ${transaction.Status}
+                            <br>
+                            <strong>Borrowed on:</strong> ${new Date(transaction.TransactionDate).toLocaleDateString()}
+                            <br>
+                            <strong>Due on:</strong> ${new Date(transaction.DueDate).toLocaleDateString()}
+                            <br>
+                            ${transaction.ReturnDate ? `<strong>Returned on:</strong> ${new Date(transaction.ReturnDate).toLocaleDateString()}` : ''}
+                        </div>
+                    `;
+                    document.getElementById('transactionDetails').innerHTML = detailsHTML;
+                }
+            });
         }
 
         function showBulkOperations() {
@@ -760,6 +810,16 @@
         function deleteMember(memberId) {
             if (confirm('Are you sure you want to delete this member?')) {
                 showAlert('Delete functionality will be implemented', 'success');
+                apiCall(`/members/${memberId}`, {
+                    method: 'DELETE'
+                }).then(result => {
+                    if (result && result.success) {
+                        showAlert('Member deleted successfully!', 'success');
+                        loadMembers();
+                    } else {
+                        showAlert('Failed to delete member.', 'error');
+                    }
+                });
             }
         }
 
