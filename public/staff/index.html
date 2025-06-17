@@ -72,6 +72,8 @@
                     Loading books...
                 </div>
             </div>
+            
+    
         </div>
 
         <!-- Members Tab -->
@@ -279,6 +281,62 @@
         </div>
     </div>
 
+    <div id="editBookModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editBookModal')">&times;</span>
+            <h2>✏️ Edit Book</h2>
+            <form id="editBookForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editBookTitle">Title *</label>
+                        <input type="text" id="editBookTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBookISBN">ISBN *</label>
+                        <input type="text" id="editBookISBN" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editBookPublisher">Publisher</label>
+                        <input type="text" id="editBookPublisher">
+                    </div>
+                    <div class="form-group">
+                        <label for="editBookYear">Publication Year</label>
+                        <input type="number" id="editBookYear" min="1000" max="2025">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editBookPages">Pages</label>
+                        <input type="number" id="editBookPages" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="editBookCopies">Total Copies *</label>
+                        <input type="number" id="editBookCopies" min="1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="hidden" id="editBookId">
+
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" id="editBookAvailableCopies">
+                    </div>
+                </div>
+                    </div>
+                <div class="form-group">
+                    <label for="editBookCategory">Category *</label>
+                    <select id="editBookCategory" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" onclick="closeModal('editBookModal')">💾 Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editBookModal')">❌ Cancel</button>
+            </form>
+        </div>
+    </div>
     <!-- Issue Book Modal -->
     <div id="borrowBookModal" class="modal">
         <div class="modal-content">

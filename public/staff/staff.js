@@ -36,6 +36,8 @@
             document.getElementById('borrowBookForm').addEventListener('submit', handleBorrowBook);
             document.getElementById('returnBookForm').addEventListener('submit', handleReturnBook);
             document.getElementById('addStaffForm').addEventListener('submit', handleAddStaff);
+            document.getElementById('editBookForm').addEventListener('submit', handleEditBook);
+            document.getElementById('editMemberForm').addEventListener('submit', handleEditMember);
 
             // Modal close events
             document.querySelectorAll('.close').forEach(closeBtn => {
@@ -248,7 +250,25 @@
             
             document.getElementById('booksTable').innerHTML = tableHTML;
         }
+        
+        function editBook(bookId) {
+    const book = currentData.books.find(b => b.BookID === bookId);
+    if (!book) return;
 
+    document.getElementById('editBookID').value = book.BookID;
+    document.getElementById('editBookTitle').value = book.Title;
+    document.getElementById('editBookISBN').value = book.ISBN;
+    document.getElementById('editBookPublisher').value = book.Publisher || '';
+    document.getElementById('editBookYear').value = book.PublicationYear || '';
+    document.getElementById('editBookPages').value = book.Pages || '';
+    document.getElementById('editBookCopies').value = book.TotalCopies;
+    document.getElementById('editBookAvailableCopies').value = book.AvailableCopies;
+    document.getElementById('editBookCategory').value = book.CategoryID || '';
+
+    showModal('editBookModal');
+}
+
+        
         function filterBooks() {
             const searchTerm = document.getElementById('bookSearch').value.toLowerCase();
             const filteredBooks = currentData.books.filter(book => 
@@ -520,7 +540,34 @@
                 loadMembers();
             }
         }
+        async function handleEditBook(event) {
+            event.preventDefault();
+            
+            const bookData = {
+                Title: document.getElementById('editBookTitle').value,
+                ISBN: document.getElementById('editBookISBN').value,
+                Publisher: document.getElementById('editBookPublisher').value,
+                PublicationYear: document.getElementById('editBookYear').value,
+                Pages: document.getElementById('editBookPages').value,
+                TotalCopies: document.getElementById('editBookCopies').value,
+                AvailableCopies: document.getElementById('editBookAvailableCopies').value,
+                CategoryID: document.getElementById('editBookCategory').value
+            };
 
+            const bookId = document.getElementById('editBookID').value;
+
+            const result = await apiCall(`/books/${bookId}`, {
+                method: 'PUT',
+                body: JSON.stringify(bookData)
+            });
+
+            if (result && result.success) {
+                showAlert('Book updated successfully!', 'success');
+                closeModal('editBookModal');
+                document.getElementById('editBookForm').reset();
+                loadBooks();
+            }
+        }
         async function handleAddBook(event) {
             event.preventDefault();
             
@@ -580,7 +627,7 @@
 
             const result = await apiCall(`/transactions/${transactionId}/return`, {
                 method: 'PUT',
-                body: JSON.stringify({ Fine: fine })
+                body: JSON.stringify({ fine: fine })
             });
 
             if (result && result.success) {
@@ -694,6 +741,7 @@
             showAlert(`Generating ${type} report...`, 'success');
             // Implementation for report generation
 
+
         }
 
         function processOverdueFines() {
@@ -714,16 +762,65 @@
         function viewBookHistory(bookId) {
             showAlert('Viewing book history...', 'success');
             // Implementation for book history
+            // This could involve fetching transaction history for the book
+            apiCall(`/books/${bookId}/history`).then(history => {
+                if (history) {
+                    const historyHTML = history.map(item => `
+                        <div style="padding: 10px; border-bottom: 1px solid #e2e8f0; margin-bottom: 10px;">
+                            <strong>${item.MemberName}</strong> borrowed <em>"${item.BookTitle}"</em>
+                            <br>
+                            <small style="color: #666;">📅 Borrowed on ${new Date(item.BorrowDate).toLocaleDateString()} | Due on ${new Date(item.DueDate).toLocaleDateString()}</small>
+                        </div>
+                    `).join('');
+                    document.getElementById('bookHistory').innerHTML = historyHTML || '<p>No history available for this book.</p>';
+                }
+            });
         }
 
         function viewMemberHistory(memberId) {
-            showAlert('Viewing member history...', 'success');
-            // Implementation for member history
+    showAlert('Viewing member history...', 'success');
+    // Use the correct endpoint
+    apiCall(`/members/${memberId}/transactions`).then(history => {
+        if (history) {
+            const historyHTML = history.map(item => `
+                <div style="padding: 10px; border-bottom: 1px solid #e2e8f0; margin-bottom: 10px;">
+                    <strong>${item.BookTitle}</strong> borrowed by <strong>${item.MemberName}</strong>
+                    <br>
+                    <small style="color: #666;">📅 Borrowed on ${new Date(item.BorrowDate).toLocaleDateString()} | Due on ${new Date(item.DueDate).toLocaleDateString()}</small>
+                </div>
+            `).join('');
+            document.getElementById('memberHistory').innerHTML = historyHTML || '<p>No history available for this member.</p>';
         }
+    });
+}
 
         function viewTransactionDetails(transactionId) {
             showAlert('Viewing transaction details...', 'success');
             // Implementation for transaction details
+            apiCall(`/transactions/${transactionId}`).then(transaction => {
+                if (transaction) {
+                    const detailsHTML = `
+                        <div style="padding: 10px; border-bottom: 1px solid #e2e8f0; margin-bottom: 10px;">
+                            <strong>Transaction ID:</strong> ${transaction.TransactionID}
+                            <br>
+                            <strong>Member:</strong> ${transaction.MemberName}
+                            <br>
+                            <strong>Book:</strong> ${transaction.BookTitle}
+                            <br>
+                            <strong>Staff:</strong> ${transaction.StaffName}
+                            <br>
+                            <strong>Status:</strong> ${transaction.Status}
+                            <br>
+                            <strong>Borrowed on:</strong> ${new Date(transaction.TransactionDate).toLocaleDateString()}
+                            <br>
+                            <strong>Due on:</strong> ${new Date(transaction.DueDate).toLocaleDateString()}
+                            <br>
+                            ${transaction.ReturnDate ? `<strong>Returned on:</strong> ${new Date(transaction.ReturnDate).toLocaleDateString()}` : ''}
+                        </div>
+                    `;
+                    document.getElementById('transactionDetails').innerHTML = detailsHTML;
+                }
+            });
         }
 
         function showBulkOperations() {
@@ -734,13 +831,19 @@
             showAlert('Exporting member list...', 'success');
         }
 
-        function editBook(bookId) {
-            showAlert('Edit functionality will be implemented', 'success');
-        }
 
         function deleteBook(bookId) {
             if (confirm('Are you sure you want to delete this book?')) {
-                showAlert('Delete functionality will be implemented', 'success');
+                apiCall(`/books/${bookId}`, {
+                    method: 'DELETE'
+                }).then(result => {
+                    if (result && result.success) {
+                        showAlert('Book deleted successfully!', 'success');
+                        loadBooks();
+                    } else {
+                        showAlert('Failed to delete book.', 'error');
+                    }
+                });
             }
         }
 
@@ -751,6 +854,16 @@
         function deleteMember(memberId) {
             if (confirm('Are you sure you want to delete this member?')) {
                 showAlert('Delete functionality will be implemented', 'success');
+                apiCall(`/members/${memberId}`, {
+                    method: 'DELETE'
+                }).then(result => {
+                    if (result && result.success) {
+                        showAlert('Member deleted successfully!', 'success');
+                        loadMembers();
+                    } else {
+                        showAlert('Failed to delete member.', 'error');
+                    }
+                });
             }
         }
 
